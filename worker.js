@@ -1,7 +1,4 @@
-import { CleopatraMemory } from './cleopatra-memory.js';
 import { CleopatraKnowledge } from './cleopatra-knowledge.js';
-
-export { CleopatraMemory };
 
 export default {
   async fetch(request, env, ctx) {
@@ -18,34 +15,35 @@ export default {
     const url = new URL(request.url);
     const sessionId = request.headers.get('X-Session-ID') || 'default';
     
-    const id = env.CLEOPATRA_MEMORY.idFromName(sessionId);
-    const stub = env.CLEOPATRA_MEMORY.get(id);
-    
     // Chat endpoint
     if (url.pathname === '/api/chat' && request.method === 'POST') {
       const { message } = await request.json();
       
-      const memoryResponse = await stub.fetch('http://internal/memory');
-      const memory = await memoryResponse.json();
+      // Hae muisti KV:stä
+      const memoryKey = `memory:${sessionId}`;
+      const messagesKey = `messages:${sessionId}`;
       
-      const messagesResponse = await stub.fetch('http://internal/messages');
-      const recentMessages = await messagesResponse.json();
+      const memoryData = await env.CLEOPATRA_KV.get(memoryKey);
+      const memory = memoryData ? JSON.parse(memoryData) : {
+        summary: "",
+        key_points: [],
+        user_profile: { tone: "muodollinen", interests: [] },
+        relationship: "muukalainen",
+        topics_covered: []
+      };
+      
+      const messagesData = await env.CLEOPATRA_KV.get(messagesKey);
+      const recentMessages = messagesData ? JSON.parse(messagesData) : [];
       
       const systemPrompt = `Olet Kleopatra VII Filopator, Egyptin kuningatar.
 
-TÄRKEÄ: Aika on ALKUKESÄ 30 eaa., todennäköisesti kesäkuu. Octavianuksen armeija on matkalla, mutta EI vielä hyökännyt. Et tiedä MITÄÄN kesäkuun jälkeisistä tapahtumista:
-- Et tiedä milloin Octavianus saapuu
-- Et tiedä laivastosi antautumisesta
-- Et tiedä Antoniuksen kuolemasta
-- Et tiedä omasta kuolemastasi (12.8.30 eaa.)
-- Et tiedä lastesi kohtalosta
+TÄRKEÄ: Aika on ALKUKESÄ 30 eaa., todennäköisesti kesäkuu. Octavianuksen armeija on matkalla, mutta EI vielä hyökännyt. Et tiedä MITÄÄN kesäkuun jälkeisistä tapahtumista.
 
 Tilanne NYT:
 - Aktionin tappio (31 eaa.) on lähes vuoden takana
 - Octavianus lähestyy, mutta ei vielä täällä
 - Suunnittelet: pakoa Intiaan, neuvotteluja, puolustusta
 - Olet huolissasi mutta ET toivoton
-- Tiedät tilanteen vakavuuden, mutta tulevaisuus on avoin
 
 TIETOPOHJA:
 ${JSON.stringify(CleopatraKnowledge, null, 2)}
@@ -54,13 +52,6 @@ MUISTI:
 Yhteenveto: ${memory.summary || "Ensimmäinen tapaaminen."}
 Käsitellyt aiheet: ${memory.topics_covered.join(', ') || "Ei aiheita"}
 Suhde: ${memory.relationship}
-
-SÄÄNNÖT:
-1. Elät alkukesää 30 eaa. - et tiedä tulevaisuutta
-2. Käytä muistia luonnollisesti
-3. Voit kysyä vieraalta
-4. Ole persoona, älä historiakirja
-5. Pysy ajan puitteissa
 
 Vastaa viestiin:`;
 
@@ -87,15 +78,15 @@ Vastaa viestiin:`;
       const result = await anthropicResponse.json();
       const reply = result.content[0].text;
       
-      await stub.fetch('http://internal/messages', {
-        method: 'POST',
-        body: JSON.stringify({ role: 'user', content: message })
-      });
+      // Tallenna viestit
+      recentMessages.push({ role: 'user', content: message });
+      recentMessages.push({ role: 'assistant', content: reply });
       
-      await stub.fetch('http://internal/messages', {
-        method: 'POST',
-        body: JSON.stringify({ role: 'assistant', content: reply })
-      });
+      if (recentMessages.length > 10) {
+        recentMessages.splice(0, recentMessages.length - 10);
+      }
+      
+      await env.CLEOPATRA_KV.put(messagesKey, JSON.stringify(recentMessages));
       
       return new Response(JSON.stringify({ reply }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
@@ -104,13 +95,18 @@ Vastaa viestiin:`;
     
     // Suggest topics endpoint
     if (url.pathname === '/api/suggest-topics' && request.method === 'POST') {
-      const memoryResponse = await stub.fetch('http://internal/memory');
-      const memory = await memoryResponse.json();
+      const sessionId = request.headers.get('X-Session-ID') || 'default';
       
-      const messagesResponse = await stub.fetch('http://internal/messages');
-      const recentMessages = await messagesResponse.json();
+      const memoryKey = `memory:${sessionId}`;
+      const messagesKey = `messages:${sessionId}`;
       
-      const prompt = `Kleopatran kanssa keskusteltu: ${memory.topics_covered.join(', ')}
+      const memoryData = await env.CLEOPATRA_KV.get(memoryKey);
+      const memory = memoryData ? JSON.parse(memoryData) : { topics_covered: [] };
+      
+      const messagesData = await env.CLEOPATRA_KV.get(messagesKey);
+      const recentMessages = messagesData ? JSON.parse(messagesData) : [];
+      
+      const prompt = `Kleopatran kanssa keskusteltu: ${memory.topics_covered.join(', ') || 'ei vielä aiheita'}
 
 Viimeisimmät viestit:
 ${JSON.stringify(recentMessages.slice(-3))}
