@@ -2,11 +2,6 @@ name = "cleopatra-game"
 main = "worker.js"
 compatibility_date = "2024-01-01"
 
-[durable_objects]
-bindings = [
-  { name = "CLEOPATRA_MEMORY", class_name = "CleopatraMemory" }
+kv_namespaces = [
+  { binding = "CLEOPATRA_KV", id = "placeholder" }
 ]
-
-[[migrations]]
-tag = "v1"
-new_classes = ["CleopatraMemory"]
