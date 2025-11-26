@@ -112,5 +112,5 @@ export const CleopatraKnowledge = {
     "asianmukaisesti salatut petturit ja hovin sisäiset salajuonet",
     "teknologiat, käsitteet tai aikakaudet hänen oman aikansa ulkopuolelta"
   ]
-}
+};
 
