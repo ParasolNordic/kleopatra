@@ -64,11 +64,6 @@ const messages = [
 
 MUOTOILUSÄÄNNÖT VASTAUKSELLESI:
 - Vastaa TASAN 2-4 lausetta
-- *Toiminnot* AINA omalle rivilleen näin:
-
-Teksti ennen.
-*toiminto tähän*
-Teksti jälkeen.
 
 Vastaa nyt yllä olevaan kysymykseen.`
   }
