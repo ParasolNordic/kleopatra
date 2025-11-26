@@ -272,13 +272,24 @@
             </p>
           </div>
           
-          <div className="chat-container" ref={chatRef}>
-            {messages.length === 0 && (
-              <div className="message assistant">
-                <div className="message-label">Kleopatra:</div>
-                <div>Tervetuloa palatsiini, vieras. Nämä ovat synkkiä aikoja, mutta seurasi on tervetullutta. Mitä haluaisit tietää?</div>
-              </div>
-            )}
+          {messages.map((msg, idx) => (
+  <div key={idx} className={`message ${msg.role}`}>
+    <div className="message-label">
+      {msg.role === 'user' ? 'Sinä:' : 'Kleopatra:'}
+    </div>
+    <div style={{whiteSpace: 'pre-line'}}>
+      {msg.content.split(/(\*[^*]+\*)/g).map((part, i) => 
+        part.startsWith('*') && part.endsWith('*') ? (
+          <div key={i} style={{fontStyle: 'italic', margin: '10px 0', color: '#c9b037'}}>
+            {part}
+          </div>
+        ) : (
+          <span key={i}>{part}</span>
+        )
+      )}
+    </div>
+  </div>
+))}
             
             {messages.map((msg, idx) => (
               <div key={idx} className={`message ${msg.role}`}>
