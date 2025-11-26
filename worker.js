@@ -19,7 +19,6 @@ export default {
     if (url.pathname === '/api/chat' && request.method === 'POST') {
       const { message } = await request.json();
       
-      // Hae muisti KV:stä
       const memoryKey = `memory:${sessionId}`;
       const messagesKey = `messages:${sessionId}`;
       
@@ -88,10 +87,8 @@ Vastaa nyt yllä olevaan kysymykseen.`
       const result = await anthropicResponse.json();
       const reply = result.content[0].text;
       
-      // Poista *toiminnot* ääniversiota varten
       const speechText = reply.replace(/\*[^*]+\*/g, '').trim();
       
-      // Tallenna viestit
       recentMessages.push({ role: 'user', content: message });
       recentMessages.push({ role: 'assistant', content: reply });
       
@@ -101,7 +98,6 @@ Vastaa nyt yllä olevaan kysymykseen.`
       
       await env.CLEOPATRA_KV.put(messagesKey, JSON.stringify(recentMessages));
       
-      // Generoi ääni ElevenLabsilla
       let audioUrl = null;
       try {
         const ttsResponse = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${env.ELEVENLABS_VOICE_ID}`, {
@@ -134,7 +130,6 @@ Vastaa nyt yllä olevaan kysymykseen.`
       });
     }
     
-    // Suggest topics endpoint
     if (url.pathname === '/api/suggest-topics' && request.method === 'POST') {
       const sessionId = request.headers.get('X-Session-ID') || 'default';
       
