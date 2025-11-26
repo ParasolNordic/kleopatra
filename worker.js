@@ -56,24 +56,18 @@ SÄÄNNÖT:
 2. Käytä muistia luonnollisesti
 3. Ole persoona, älä historiakirja`;
 
-const messages = [
-  ...recentMessages.map(m => ({ role: m.role, content: m.content })),
-  { 
-    role: 'user', 
-    content: `${message}
+      const messages = [
+        ...recentMessages.map(m => ({ role: m.role, content: m.content })),
+        { 
+          role: 'user', 
+          content: `${message}
 
 MUOTOILUSÄÄNNÖT VASTAUKSELLESI:
 - Vastaa TASAN 2-4 lausetta
+- Voit käyttää *toimintoja* kuvailemaan elehtimistä
 
 Vastaa nyt yllä olevaan kysymykseen.`
-  }
-];
-
-Vastaa viestiin:`;
-
-      const messages = [
-        ...recentMessages.map(m => ({ role: m.role, content: m.content })),
-        { role: 'user', content: message }
+        }
       ];
 
       const anthropicResponse = await fetch('https://api.anthropic.com/v1/messages', {
@@ -94,6 +88,9 @@ Vastaa viestiin:`;
       const result = await anthropicResponse.json();
       const reply = result.content[0].text;
       
+      // Poista *toiminnot* ääniversiota varten
+      const speechText = reply.replace(/\*[^*]+\*/g, '').trim();
+      
       // Tallenna viestit
       recentMessages.push({ role: 'user', content: message });
       recentMessages.push({ role: 'assistant', content: reply });
@@ -104,7 +101,35 @@ Vastaa viestiin:`;
       
       await env.CLEOPATRA_KV.put(messagesKey, JSON.stringify(recentMessages));
       
-      return new Response(JSON.stringify({ reply }), {
+      // Generoi ääni ElevenLabsilla
+      let audioUrl = null;
+      try {
+        const ttsResponse = await fetch(`https://api.elevenlabs.io/v1/text-to-speech/${env.ELEVENLABS_VOICE_ID}`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'xi-api-key': env.ELEVENLABS_API_KEY
+          },
+          body: JSON.stringify({
+            text: speechText,
+            model_id: 'eleven_multilingual_v2',
+            voice_settings: {
+              stability: 0.5,
+              similarity_boost: 0.75
+            }
+          })
+        });
+        
+        if (ttsResponse.ok) {
+          const audioBlob = await ttsResponse.arrayBuffer();
+          const base64Audio = btoa(String.fromCharCode(...new Uint8Array(audioBlob)));
+          audioUrl = `data:audio/mpeg;base64,${base64Audio}`;
+        }
+      } catch (error) {
+        console.error('ElevenLabs error:', error);
+      }
+      
+      return new Response(JSON.stringify({ reply, audioUrl }), {
         headers: { ...corsHeaders, 'Content-Type': 'application/json' }
       });
     }
