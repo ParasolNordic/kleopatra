@@ -8,171 +8,34 @@
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   <style>
-    * {
-      margin: 0;
-      padding: 0;
-      box-sizing: border-box;
-    }
-    
-    body {
-      font-family: 'Garamond', 'Georgia', serif;
-      background: linear-gradient(135deg, #2c1810 0%, #1a0f0a 100%);
-      color: #f5e6d3;
-      min-height: 100vh;
-    }
-    
-    .container {
-      max-width: 800px;
-      margin: 0 auto;
-      padding: 20px;
-    }
-    
-    .header {
-      text-align: center;
-      padding: 40px 20px;
-      background: linear-gradient(180deg, rgba(139,69,19,0.3) 0%, rgba(0,0,0,0) 100%);
-      border-bottom: 2px solid #8b4513;
-      margin-bottom: 30px;
-    }
-    
-    .header h1 {
-      font-size: 2.5em;
-      color: #d4af37;
-      text-shadow: 2px 2px 4px rgba(0,0,0,0.5);
-      margin-bottom: 10px;
-    }
-    
-    .header p {
-      font-size: 1.1em;
-      color: #c9b037;
-      font-style: italic;
-    }
-    
-    .intro {
-      background: rgba(139,69,19,0.2);
-      padding: 30px;
-      border-radius: 10px;
-      border: 1px solid #8b4513;
-      margin-bottom: 30px;
-      line-height: 1.8;
-    }
-    
-    .chat-container {
-      background: rgba(20,15,10,0.6);
-      border-radius: 10px;
-      border: 2px solid #8b4513;
-      padding: 20px;
-      min-height: 400px;
-      max-height: 600px;
-      overflow-y: auto;
-      margin-bottom: 20px;
-    }
-    
-    .message {
-      margin-bottom: 20px;
-      padding: 15px;
-      border-radius: 8px;
-      animation: fadeIn 0.3s;
-    }
-    
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(10px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    
-    .message.user {
-      background: rgba(70,40,20,0.5);
-      border-left: 4px solid #d4af37;
-      margin-left: 40px;
-    }
-    
-    .message.assistant {
-      background: rgba(40,25,15,0.5);
-      border-left: 4px solid #8b4513;
-      margin-right: 40px;
-    }
-    
-    .message-label {
-      font-weight: bold;
-      color: #d4af37;
-      margin-bottom: 5px;
-      font-size: 0.9em;
-    }
-    
-    .input-container {
-      display: flex;
-      gap: 10px;
-      margin-bottom: 15px;
-    }
-    
-    input {
-      flex: 1;
-      padding: 15px;
-      background: rgba(40,25,15,0.8);
-      border: 2px solid #8b4513;
-      border-radius: 8px;
-      color: #f5e6d3;
-      font-size: 1em;
-      font-family: inherit;
-    }
-    
-    input:focus {
-      outline: none;
-      border-color: #d4af37;
-    }
-    
-    button {
-      padding: 15px 30px;
-      background: linear-gradient(135deg, #8b4513 0%, #654321 100%);
-      border: 2px solid #d4af37;
-      border-radius: 8px;
-      color: #f5e6d3;
-      font-size: 1em;
-      font-family: inherit;
-      cursor: pointer;
-      transition: all 0.3s;
-    }
-    
-    button:hover:not(:disabled) {
-      background: linear-gradient(135deg, #a0522d 0%, #8b4513 100%);
-      transform: translateY(-2px);
-      box-shadow: 0 4px 8px rgba(212,175,55,0.3);
-    }
-    
-    button:disabled {
-      opacity: 0.5;
-      cursor: not-allowed;
-    }
-    
-    .suggestions {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 10px;
-      margin-top: 15px;
-    }
-    
-    .suggestion-btn {
-      padding: 12px;
-      font-size: 0.9em;
-      text-align: left;
-      background: rgba(70,40,20,0.3);
-      border: 1px solid #8b4513;
-    }
-    
-    .loading {
-      text-align: center;
-      color: #d4af37;
-      font-style: italic;
-      padding: 20px;
-    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { font-family: 'Garamond', 'Georgia', serif; background: linear-gradient(135deg, #2c1810 0%, #1a0f0a 100%); color: #f5e6d3; min-height: 100vh; }
+    .container { max-width: 800px; margin: 0 auto; padding: 20px; }
+    .header { text-align: center; padding: 40px 20px; background: linear-gradient(180deg, rgba(139,69,19,0.3) 0%, rgba(0,0,0,0) 100%); border-bottom: 2px solid #8b4513; margin-bottom: 30px; }
+    .header h1 { font-size: 2.5em; color: #d4af37; text-shadow: 2px 2px 4px rgba(0,0,0,0.5); margin-bottom: 10px; }
+    .header p { font-size: 1.1em; color: #c9b037; font-style: italic; }
+    .intro { background: rgba(139,69,19,0.2); padding: 30px; border-radius: 10px; border: 1px solid #8b4513; margin-bottom: 30px; line-height: 1.8; }
+    .chat-container { background: rgba(20,15,10,0.6); border-radius: 10px; border: 2px solid #8b4513; padding: 20px; min-height: 400px; max-height: 600px; overflow-y: auto; margin-bottom: 20px; }
+    .message { margin-bottom: 20px; padding: 15px; border-radius: 8px; animation: fadeIn 0.3s; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+    .message.user { background: rgba(70,40,20,0.5); border-left: 4px solid #d4af37; margin-left: 40px; }
+    .message.assistant { background: rgba(40,25,15,0.5); border-left: 4px solid #8b4513; margin-right: 40px; }
+    .message-label { font-weight: bold; color: #d4af37; margin-bottom: 5px; font-size: 0.9em; }
+    .input-container { display: flex; gap: 10px; margin-bottom: 15px; }
+    input { flex: 1; padding: 15px; background: rgba(40,25,15,0.8); border: 2px solid #8b4513; border-radius: 8px; color: #f5e6d3; font-size: 1em; font-family: inherit; }
+    input:focus { outline: none; border-color: #d4af37; }
+    button { padding: 15px 30px; background: linear-gradient(135deg, #8b4513 0%, #654321 100%); border: 2px solid #d4af37; border-radius: 8px; color: #f5e6d3; font-size: 1em; font-family: inherit; cursor: pointer; transition: all 0.3s; }
+    button:hover:not(:disabled) { background: linear-gradient(135deg, #a0522d 0%, #8b4513 100%); transform: translateY(-2px); box-shadow: 0 4px 8px rgba(212,175,55,0.3); }
+    button:disabled { opacity: 0.5; cursor: not-allowed; }
+    .suggestions { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 15px; }
+    .suggestion-btn { padding: 12px; font-size: 0.9em; text-align: left; background: rgba(70,40,20,0.3); border: 1px solid #8b4513; }
+    .loading { text-align: center; color: #d4af37; font-style: italic; padding: 20px; }
   </style>
 </head>
 <body>
   <div id="root"></div>
-
   <script type="text/babel">
     const { useState, useEffect, useRef } = React;
-    
     const WORKER_URL = 'https://kleopatra.miltton-ai.workers.dev';
     
     function App() {
@@ -191,9 +54,7 @@
       const chatRef = useRef(null);
       
       const scrollToBottom = () => {
-        if (chatRef.current) {
-          chatRef.current.scrollTop = chatRef.current.scrollHeight;
-        }
+        if (chatRef.current) chatRef.current.scrollTop = chatRef.current.scrollHeight;
       };
       
       useEffect(scrollToBottom, [messages]);
@@ -209,34 +70,22 @@
         try {
           const response = await fetch(`${WORKER_URL}/api/chat`, {
             method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'X-Session-ID': sessionId
-            },
+            headers: { 'Content-Type': 'application/json', 'X-Session-ID': sessionId },
             body: JSON.stringify({ message: text })
           });
           
           const data = await response.json();
+          setMessages(prev => [...prev, { role: 'assistant', content: data.reply }]);
           
-          setMessages(prev => [...prev, {
-            role: 'assistant',
-            content: data.reply
-          }]);
-          
-          // Toista ääni jos saatavilla
           if (data.audioUrl) {
             const audio = new Audio(data.audioUrl);
-            audio.play().catch(err => console.error('Audio playback error:', err));
+            audio.play().catch(err => console.error('Audio:', err));
           }
           
           fetchSuggestions();
-          
         } catch (error) {
           console.error('Virhe:', error);
-          setMessages(prev => [...prev, {
-            role: 'assistant',
-            content: 'Anteeksi, tapahtui virhe. Yritä uudelleen.'
-          }]);
+          setMessages(prev => [...prev, { role: 'assistant', content: 'Anteeksi, tapahtui virhe.' }]);
         } finally {
           setLoading(false);
         }
@@ -246,21 +95,16 @@
         try {
           const response = await fetch(`${WORKER_URL}/api/suggest-topics`, {
             method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'X-Session-ID': sessionId
-            }
+            headers: { 'Content-Type': 'application/json', 'X-Session-ID': sessionId }
           });
           const data = await response.json();
           setSuggestions(data.suggestions || []);
         } catch (error) {
-          console.error('Ehdotusten haku epäonnistui:', error);
+          console.error('Ehdotukset:', error);
         }
       };
       
-      useEffect(() => {
-        fetchSuggestions();
-      }, []);
+      useEffect(() => { fetchSuggestions(); }, []);
       
       return (
         <div className="container">
@@ -268,15 +112,9 @@
             <h1>Kleopatra VII Filopator</h1>
             <p>Kuningatar Egyptissä • Aleksandria, kesäkuu 30 eaa.</p>
           </div>
-          
           <div className="intro">
-            <p>
-              Aleksandria, kesäkuu 30 eaa. Octavianuksen armeija lähestyy kaupunkia. 
-              Kuningatar Kleopatran palatsi on hiljainen, mutta ei autio. Sinut on kutsuttu 
-              tapaamaan Egyptin viimeistä faraota näinä historian käännekohtaisina hetkinä.
-            </p>
+            <p>Aleksandria, kesäkuu 30 eaa. Octavianuksen armeija lähestyy kaupunkia. Kuningatar Kleopatran palatsi on hiljainen, mutta ei autio. Sinut on kutsuttu tapaamaan Egyptin viimeistä faraota näinä historian käännekohtaisina hetkinä.</p>
           </div>
-          
           <div className="chat-container" ref={chatRef}>
             {messages.length === 0 && (
               <div className="message assistant">
@@ -284,56 +122,28 @@
                 <div>Tervetuloa palatsiini, vieras. Nämä ovat synkkiä aikoja, mutta seurasi on tervetullutta. Mitä haluaisit tietää?</div>
               </div>
             )}
-            
             {messages.map((msg, idx) => (
               <div key={idx} className={`message ${msg.role}`}>
-                <div className="message-label">
-                  {msg.role === 'user' ? 'Sinä:' : 'Kleopatra:'}
-                </div>
+                <div className="message-label">{msg.role === 'user' ? 'Sinä:' : 'Kleopatra:'}</div>
                 <div style={{whiteSpace: 'pre-line'}}>
                   {msg.content.split(/(\*[^*]+\*)/g).map((part, i) => 
                     part.startsWith('*') && part.endsWith('*') ? (
-                      <div key={i} style={{fontStyle: 'italic', margin: '5px 0', color: '#c9b037'}}>
-                        {part}
-                      </div>
-                    ) : (
-                      <span key={i}>{part}</span>
-                    )
+                      <div key={i} style={{fontStyle: 'italic', margin: '5px 0', color: '#c9b037'}}>{part}</div>
+                    ) : (<span key={i}>{part}</span>)
                   )}
                 </div>
               </div>
             ))}
-            
-            {loading && (
-              <div className="loading">Kleopatra miettii vastausta...</div>
-            )}
+            {loading && <div className="loading">Kleopatra miettii vastausta...</div>}
           </div>
-          
           <div className="input-container">
-            <input
-              type="text"
-              value={input}
-              onChange={(e) => setInput(e.target.value)}
-              onKeyPress={(e) => e.key === 'Enter' && sendMessage(input)}
-              placeholder="Kirjoita viestisi Kleopatralle..."
-              disabled={loading}
-            />
-            <button onClick={() => sendMessage(input)} disabled={loading}>
-              Lähetä
-            </button>
+            <input type="text" value={input} onChange={(e) => setInput(e.target.value)} onKeyPress={(e) => e.key === 'Enter' && sendMessage(input)} placeholder="Kirjoita viestisi Kleopatralle..." disabled={loading} />
+            <button onClick={() => sendMessage(input)} disabled={loading}>Lähetä</button>
           </div>
-          
           {suggestions.length > 0 && messages.length < 3 && (
             <div className="suggestions">
               {suggestions.map((suggestion, idx) => (
-                <button
-                  key={idx}
-                  className="suggestion-btn"
-                  onClick={() => sendMessage(suggestion)}
-                  disabled={loading}
-                >
-                  {suggestion}
-                </button>
+                <button key={idx} className="suggestion-btn" onClick={() => sendMessage(suggestion)} disabled={loading}>{suggestion}</button>
               ))}
             </div>
           )}
