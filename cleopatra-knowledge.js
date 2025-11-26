@@ -113,4 +113,4 @@ export const CleopatraKnowledge = {
     "teknologiat, käsitteet tai aikakaudet hänen oman aikansa ulkopuolelta"
   ]
 }
-};
+
