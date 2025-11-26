@@ -223,6 +223,12 @@
             content: data.reply
           }]);
           
+          // Toista ääni jos saatavilla
+          if (data.audioUrl) {
+            const audio = new Audio(data.audioUrl);
+            audio.play().catch(err => console.error('Audio playback error:', err));
+          }
+          
           fetchSuggestions();
           
         } catch (error) {
@@ -287,7 +293,7 @@
                 <div style={{whiteSpace: 'pre-line'}}>
                   {msg.content.split(/(\*[^*]+\*)/g).map((part, i) => 
                     part.startsWith('*') && part.endsWith('*') ? (
-                      <div key={i} style={{fontStyle: 'italic', margin: '10px 0', color: '#c9b037'}}>
+                      <div key={i} style={{fontStyle: 'italic', margin: '5px 0', color: '#c9b037'}}>
                         {part}
                       </div>
                     ) : (
